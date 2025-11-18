@@ -13,7 +13,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Scanner;
 
-/// FALTA: activarCuenta- Verificar el formato de como se ingresa la fecha y horario - Verificar funcionamiento general e interfaz JSONable
 
 public class Main {
     public static void main(String[] args) {
