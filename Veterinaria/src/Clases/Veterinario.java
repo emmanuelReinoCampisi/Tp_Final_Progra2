@@ -44,7 +44,9 @@ public class Veterinario extends Empleado  {
     }
 
 
-
+    public ArrayList<ESPECIE> getEspecialidades() {
+        return new ArrayList<>(especialidades);
+    }
     @Override
     public String toString() {
         final String RESET = "\u001B[0m";

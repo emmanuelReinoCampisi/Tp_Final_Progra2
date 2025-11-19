@@ -12,7 +12,8 @@ import org.json.JSONArray;
 
     import java.time.LocalDate;
     import java.time.LocalTime;
-    import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Iterator;
     import java.util.List;
 
     public class Veterinaria {
@@ -38,19 +39,38 @@ import org.json.JSONArray;
         public void agregarEmpleado(String nombre, int edad, int dni, String email, String contrasenia, TURNO turno)throws ExcepcionYaExistente {
             Empleado empleado = new Empleado(nombre, edad, dni, email, contrasenia, turno);
                     if(Personal.existe(empleado)){
-                        throw new ExcepcionYaExistente("Empleado existente");
+                        throw new ExcepcionYaExistente("El dni del empleado ya se encuentra en el sistema");
                     }else{
+                        Iterator<Empleado> it = Personal.getIterator();
+                        while(it.hasNext()){
+                            Empleado emp = it.next();
+                            if(emp.getEmail().equalsIgnoreCase(email)){
+                                throw new ExcepcionYaExistente("El mail ya se encuentra en uso por un empleado.");
+                            }
+                        }
                         Personal.agregar(empleado);
-                    }
+                        }
         }
 
         public void agregarVeterinario(String nombre, int edad, int dni, String email, String contrasenia, TURNO turno, String matricula)throws ExcepcionYaExistente {
             Veterinario veterinario = new Veterinario(nombre,edad,dni,email,contrasenia,turno,matricula);
-            if(Personal.existe(veterinario)){
-                    throw new ExcepcionYaExistente("Veterinario ya existente");
-                } else{
+            if(Personal.existe(veterinario)) {
+                throw new ExcepcionYaExistente("Veterinario ya existente.");
+            }else{
+                    Iterator<Empleado> it = Personal.getIterator();
+                    while(it.hasNext()){
+                        Empleado emp =  it.next();
+                        if(emp.getEmail().equalsIgnoreCase(email)){
+                            throw new ExcepcionYaExistente("El mail ya se encuentra en uso por un empleado.");
+                        }
+                        if(emp instanceof Veterinario){
+                            if (((Veterinario) emp).getMatricula().equalsIgnoreCase(matricula)) {
+                                throw new ExcepcionYaExistente("La matricula del veterinario ya esta registrada");
+                            }
+                        }
+                    }
                 Personal.agregar(veterinario);
-            }
+                }
         }
 
         public void agregarEspecialidadVeterinario(int dni, ESPECIE especialidad)throws ExcepcionNoExistente, ExcepcionNoCoincide, ExcepcionYaExistente{/// Hay que verificar de que exosta el veterinario
@@ -87,18 +107,69 @@ import org.json.JSONArray;
 
                 return seElimino;
         }
-
+        public String listarVeterinarios(){
+            StringBuilder sb = new StringBuilder();
+            Iterator<Empleado> it = Personal.getIterator();
+            while(it.hasNext()){
+                Empleado emp = it.next();
+                if (emp instanceof Veterinario){
+                    sb.append(emp.toString());
+                }
+            }
+            return sb.toString();
+        }
         public String listarEmpleados(){
             String lista = "";
             return lista += Personal.listar();
         }
 
         public String listarDuenios(){
-
             String lista = "";
             return lista += Duenios.listar();
         }
 
+        public void verificarEspecialidad(int idMascota, int dniVeterinario)throws ExcepcionNoExistente, ExcepcionNoCoincide {
+            boolean valida = false;
+            boolean mascotaExiste= false;
+            boolean veterinarioExiste= false;
+            ESPECIE especieMascota = null;
+            Iterator<Duenio> itDuenios = Duenios.getIterator();
+            while(itDuenios.hasNext()){
+                Duenio d = itDuenios.next();
+                ArrayList<Mascota> mascotas = d.getMascotas();
+                for (Mascota m: mascotas){
+                    if (m.getID() == idMascota){
+                         especieMascota = m.getEspecie();
+                         mascotaExiste = true;
+                    }
+                }
+            }
+            if (!mascotaExiste){
+                throw new ExcepcionNoExistente("El id de la mascota no se encontro en el sistema");
+            }
+            Iterator<Empleado>  it = Personal.getIterator();
+            while(it.hasNext()){
+                Empleado emp = it.next();
+                if (emp instanceof Veterinario){
+                    if(emp.getDni() == dniVeterinario){
+                        veterinarioExiste = true;
+                        ArrayList<ESPECIE> especialidades = ((Veterinario) emp).getEspecialidades();
+                        for (ESPECIE e: especialidades){
+                            if (e.equals(especieMascota)){
+                                valida = true;
+                            }
+                        }
+                    }
+                }
+            }
+            if (!veterinarioExiste){
+                throw new ExcepcionNoExistente("El veterinario no se encuentra en el sistema");
+            }
+
+            if (!valida){
+                throw new ExcepcionNoCoincide("El veterinario no puede atender a esta mascota");
+            }
+        }
     public void agregarCita (LocalDate fecha, LocalTime horario, TIPOCITA motivo,int idMascota, ESTADOCITA estadoCita, int  dniVet)throws CitaInvalidaExcep, ExcepcionNoExistente, ExcepcionNoCoincide {
             Cita c = new Cita(fecha, horario, motivo, estadoCita,idMascota,dniVet);
             Veterinario vet = (Veterinario) Personal.obtenerPorIdentificador(dniVet);
@@ -152,15 +223,23 @@ import org.json.JSONArray;
         // metodo para agregar un duenio nuevo que no este cargado en el sistema
         public void agregarDuenioNuevo(String nombre, int edad, int dni, long telefono, String direccion, String nombreM, int edadM, ESPECIE especie, String raza, int dniDuenio)throws ExcepcionYaExistente{
             Duenio nuevo = new Duenio(nombre, edad, dni, telefono, direccion);
-            Mascota nueva = new Mascota(nombre, edad, especie, raza, dniDuenio);
+            Mascota nueva = new Mascota(nombreM, edadM, especie, raza, dniDuenio);
 
             if(Duenios.existe(nuevo)){
                 throw new ExcepcionYaExistente("Duenio ya existente");
             }else{
+                Iterator<Duenio> it = Duenios.getIterator();
+                while(it.hasNext()) {
+                    Duenio duenio = it.next();
+                    if (duenio.getDni() == dni){
+                        throw new ExcepcionYaExistente("El dni del duenio ya se encuentra registrado");
+                    }
+                }
                 nuevo.agregarMascota(nueva);
                 Duenios.agregar(nuevo);
             }
         }
+
 
         public Veterinario obtenerVeterinarioLogueado(String email, String contra)
                 throws ExcepcionNoExistente, ExcepcionNoCoincide, ExcepcionFormatoNoValido {
@@ -284,15 +363,20 @@ import org.json.JSONArray;
             return mensaje;
         }
 
-        public String listarMascotaEspecifica(int dni, String nombreMascota) {
+        public String listarMascotaEspecifica(int dni, String nombreMascota)throws ExcepcionNoExistente, ExcepcionNoCoincide {
             String mensaje = "";
             Duenio d = Duenios.obtenerPorIdentificador(dni);
             if (d != null) {
                 Iterator<Duenio> it = Duenios.getIterator();
                 while (it.hasNext()) {
                     Duenio duenio = it.next();
-                    mensaje= duenio.listarMascotasEspecifica(nombreMascota);
+                    if(duenio.getDni() == dni) {
+                        mensaje = duenio.listarMascotasEspecifica(nombreMascota);
+                    }else {
+                        throw new ExcepcionNoCoincide("El nombre de la mascota no coincide con una mascota registrada del dueño");
+                    }
                 }
+            }else{throw new ExcepcionNoExistente("El dni del dueño no se encuentra en el sistema");
             }
             return mensaje;
         }
@@ -380,60 +464,6 @@ import org.json.JSONArray;
         }
 
 
-
-        public JSONObject toJSONVET(){
-            JSONObject jsonVet = new JSONObject();
-
-            try {
-                jsonVet.put("nombre", nombre);
-                jsonVet.put("direccion",direccion);
-                jsonVet.put("email_admin",emailAdmin);
-                jsonVet.put("contrasenia_admin",contraseniaAdmin);
-                //Empleados
-                JSONArray empleadosJSON = jsonVet.getJSONArray("empleados");
-                Iterator<Empleado> itE = Personal.getIterator();
-                while (itE.hasNext()) {
-                    empleadosJSON.put(itE.next().toJSON());
-                }
-                jsonVet.put("personal", empleadosJSON);
-
-
-                // Duenios
-                JSONArray dueniosJSON = jsonVet.getJSONArray("duenios");
-                Iterator<Duenio> itD = Duenios.getIterator();
-                while (itD.hasNext()) {
-                    dueniosJSON.put(itD.next().toJSON());
-                }
-                jsonVet.put("duenios", dueniosJSON);
-
-                // Citas
-
-                JSONArray citasJSON = jsonVet.getJSONArray("citas");
-                Iterator<Cita> itC = Citas.getIterator();
-                while (itC.hasNext()) {
-                    citasJSON.put(itC.next().toJSON());
-                }
-                jsonVet.put("citas", citasJSON);
-
-            }catch(JSONException e){
-                e.printStackTrace();
-            }
-
-            return jsonVet;
-        }
-
-        @Override
-        public String toString() {
-            return "Clases.Veterinaria{" +
-                    "nombre='" + nombre + '\'' +
-                    ", direccion='" + direccion + '\'' +
-                    ", emailAdmin='" + emailAdmin + '\'' +
-                    ", contraseniaAdmin='" + contraseniaAdmin + '\'' +
-                    ", Personal=" + Personal +
-                    ", Duenios=" + Duenios +
-                    ", Citas=" + Citas +
-                    '}';
-        }
         public boolean ingresarEmpleado(String email, String contra)throws ExcepcionFormatoNoValido,ExcepcionNoExistente,ExcepcionNoCoincide,ExcepcionCuentaInactiva{
             boolean ingreso = false;
 
@@ -583,16 +613,4 @@ import org.json.JSONArray;
                 System.out.println(e.getMessage());
             }
         }
-/*        public boolean crearCuenta(String email, String contrasenia, String contraseniaDos)throws ExcepcionFormatoNoValido, ExcepcionNoCoincide{
-            boolean cuentaValida = false;
-
-            if(Handlers.Validaciones.validarFormatoEmail(email)){
-                if (Handlers.Validaciones.validarFormatoContrasenia(contrasenia)){
-                    if(Handlers.Validaciones.validarMismaContrasenia(contrasenia,contraseniaDos)){
-                        cuentaValida = true;
-                    }
-                }
-            }
-            return cuentaValida;
-        } */
     }

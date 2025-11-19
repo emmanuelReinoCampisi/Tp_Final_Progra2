@@ -61,12 +61,12 @@ public class Main {
 
                                     case 1:
                                         try {
-                                            System.out.print("Ingrese fecha o 0 para cancelar: ");
+                                            System.out.print("Ingrese fecha(AAAA-MM-DD) o 0 para cancelar: ");
                                             String fechaInput = sc.nextLine();
                                             if (fechaInput.equals("0")) break;
                                             LocalDate fecha = LocalDate.parse(fechaInput);
                                             Validaciones.validarFecha(fecha);
-                                            System.out.print("Ingrese hora: ");
+                                            System.out.print("Ingrese hora(HH:MM): ");
                                             LocalTime hora = LocalTime.parse(sc.nextLine());
                                             System.out.println("Seleccione tipo de cita: 1.Control 2.Vacunación 3.Consulta General, 4.Cirugia, 5.Emergencia");
                                             TIPOCITA tipocita = null;
@@ -81,12 +81,15 @@ public class Main {
                                                 case 5 -> tipocita = TIPOCITA.EMERGENCIA;
                                                 default -> System.out.println("OPCION INCORRECTA");
                                             }
+                                            System.out.println(veterinaria.listarMascotas());
                                             System.out.print("Ingrese ID de mascota: ");
                                             int idMascota = sc.nextInt();
                                             sc.nextLine();
+                                            System.out.println(veterinaria.listarVeterinarios());
                                             System.out.print("Ingrese DNI del veterinario: ");
                                             int dniVet = sc.nextInt();
                                             sc.nextLine();
+                                            veterinaria.verificarEspecialidad(idMascota,dniVet);
                                             veterinaria.agregarCita(fecha, hora, tipocita, idMascota, ESTADOCITA.PENDIENTE, dniVet);
                                             System.out.println("Cita asignada correctamente.");
                                         } catch (ExcepcionNoCoincide e) {
@@ -123,6 +126,8 @@ public class Main {
                                             System.out.println("1. Listar citas pendientes");
                                             System.out.println("2. Listar citas atendidas");
                                             System.out.println("3. Salir");
+                                            opcionCitas = sc.nextInt();
+                                            sc.nextLine();
                                             switch (opcionCitas) {
                                                 case 1:
                                                     try {
@@ -160,6 +165,7 @@ public class Main {
                                             sc.nextLine();
                                             System.out.print("Ingrese DNI del dueño: ");
                                             int dniD = sc.nextInt();
+                                            Validaciones.validarFormatoDNI(dniD);
                                             sc.nextLine();
                                             System.out.print("Ingrese teléfono: ");
                                             long tel = sc.nextLong();
@@ -188,7 +194,9 @@ public class Main {
                                             String raza = sc.nextLine();
                                             veterinaria.agregarDuenioNuevo(nombreD, edadD, dniD, tel, direccion, nombreM, edadM, especie, raza, dniD);
                                             System.out.println("Dueño y mascota registrados.");
-                                        } catch (Exception e) {
+                                        } catch (ExcepcionFormatoNoValido e){
+                                            System.out.println(e.getMessage());
+                                        }catch (Exception e) {
                                             System.out.println("Error: " + e.getMessage());
                                         }
                                         break;
@@ -216,10 +224,13 @@ public class Main {
                                             String raza = sc.nextLine();
                                             System.out.print("Ingrese DNI del dueño: ");
                                             int dniDue = sc.nextInt();
+                                            Validaciones.validarFormatoDNI(dniDue);
                                             sc.nextLine();
                                             veterinaria.agregarMascotaADuenio(nombreM, edadM, especie, raza, dniDue);
                                             System.out.println("Mascota registrada.");
-                                        } catch (Exception e) {
+                                        }catch (ExcepcionFormatoNoValido e){
+                                            System.out.println(e.getMessage());
+                                        }catch (Exception e) {
                                             System.out.println("Error: " + e.getMessage());
                                         }
                                         break;
@@ -246,8 +257,13 @@ public class Main {
                                                     sc.nextLine();
                                                     System.out.println("Ingrese el nombre de la mascota: ");
                                                     String nombreM = sc.nextLine();
-                                                    System.out.println(veterinaria.listarMascotaEspecifica(dniDue, nombreM));
-
+                                                    try {
+                                                        System.out.println(veterinaria.listarMascotaEspecifica(dniDue, nombreM));
+                                                    } catch (ExcepcionNoCoincide e) {
+                                                        System.out.println(e.getMessage());
+                                                    } catch (ExcepcionNoExistente e) {
+                                                        System.out.println(e.getMessage());
+                                                    }
 
                                                     break;
 
@@ -396,6 +412,7 @@ public class Main {
                                     System.out.println("3.Salir");
                                     System.out.println("Ingrese una opcion....");
                                     opcionRegistro = sc.nextInt();
+                                    sc.nextLine();
                                     switch (opcionRegistro) {
                                         case 1:
                                             System.out.println("================Creando recepcionista================");
@@ -407,7 +424,6 @@ public class Main {
                                                 System.out.println("Ingrese el nombre del Empleado: ");
                                                 String nombreE = sc.nextLine();
                                                 if (nombreE.equals("0")) break registroRec;
-                                                sc.nextLine();
                                                 System.out.println("Ingrese la edad del Empleado: ");
                                                 String edadString = sc.nextLine();
                                                 if (edadString.equals("0")) break registroRec;
@@ -736,6 +752,7 @@ public class Main {
                         break;
 
                     }
+                    break;
                         case 4:
                             veterinaria.guardarDatos();
                             System.out.println("⚙️==SALIENDO DEL SISTEMA⚙️");
@@ -748,43 +765,6 @@ public class Main {
 
         }
 
-
-        /// Testeos varios
- /*       LocalDate fechaCita = LocalDate.of(2025, 11, 8);
-        LocalDate fechaCita2 = LocalDate.of(2025, 11, 8);
-        LocalTime horarioCita = java.time.LocalTime.of(15, 30);
-        LocalTime horarioCita2 = java.time.LocalTime.of(15, 30);
-        String motivo = "Esta cita fue creada para testeo";
-
-        Veterinario Vettester = new Veterinario("Juan", 28, 1234, "juan123@gmail.com", "1234", TURNO.TARDE, "Veterinario");
-        Veterinario Vettester2 = new Veterinario("Pedro", 31, 412, "pepe533@gmail.com", "654", TURNO.TARDE, "Veterinario");
-        Mascota TobyTester = new Mascota("TobyTester", 2, ESPECIE.CANINO, "Rottweiler", 11223344);
-        Mascota CocoTester = new Mascota("CocoTester", 1, ESPECIE.CANINO, "Pastor Aleman", 11223344);
-        Cita cita = new Cita(fechaCita, horarioCita, TIPOCITA.CONTROL, ESTADOCITA.PENDIENTE, TobyTester.getID(), Vettester.getDni());
-
-        System.out.println(cita.toString());
-
-        JSONObject jsonObject = cita.citaTOJson();
-        System.out.println("json object cita:");
-        System.out.println(jsonObject);
-
-
-        try {    // asi tira eror por el veterinario ocupado
-            //veterinaria.agregarCita(fechaCita,horarioCita, TIPOCITA.CONTROL, TobyTester, ESTADOCITA.PENDIENTE,Vettester);
-            //veterinaria.agregarCita(fechaCita,horarioCita, TIPOCITA.CONTROL, CocoTester, ESTADOCITA.PENDIENTE,Vettester);
-
-
-            //asi por la mascota que ya tiene asignada una cita
-            //veterinaria.agregarCita(fechaCita,horarioCita, TIPOCITA.CONTROL, TobyTester, ESTADOCITA.PENDIENTE,Vettester);
-            //veterinaria.agregarCita(fechaCita,horarioCita, TIPOCITA.CONTROL, TobyTester, ESTADOCITA.PENDIENTE,Vettester2);
-
-            // aca anda bien
-            //veterinaria.agregarCita(fechaCita,horarioCita, TIPOCITA.CONTROL, TobyTester, ESTADOCITA.PENDIENTE,Vettester);
-            //veterinaria.agregarCita(fechaCita,horarioCita, TIPOCITA.CONTROL, CocoTester, ESTADOCITA.PENDIENTE,Vettester2);
-
-        } catch (CitaInvalidaExcep c) {
-            System.out.println("" + c.getMessage());
-        }*/
     }
 
 }

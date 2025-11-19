@@ -46,6 +46,9 @@ public class Duenio extends Persona  {
         return sb.toString();
     }
 
+    public ArrayList<Mascota> getMascotas() {
+        return new ArrayList<>(mascotas);
+    }
 
     public String listarMascotasEspecifica(String nombreMascota){
         StringBuilder sb = new StringBuilder(" ");
@@ -89,21 +92,6 @@ public class Duenio extends Persona  {
         return seAgrego;
     }
 
-    public boolean eliminarMascota(Mascota mascota) {
-        boolean seElimino = false;
-
-        if (!mascotas.isEmpty()) {
-            if (mascotas.contains(mascota)) {
-                mascotas.remove(mascota);
-                seElimino = true;
-            } else {
-                System.out.println("ExcepcionInexistente");
-            }
-        } else {
-            System.out.println("Excepciones.ExcepcionColeccionVacia");
-        }
-        return seElimino;
-    }
 
     @Override
     public JSONObject toJSON() {
