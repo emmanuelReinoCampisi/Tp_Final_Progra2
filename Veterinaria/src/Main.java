@@ -16,7 +16,6 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        //System.out.println("Hacer dos listar empleados, uno con empleados activos y otros con empleados desactivados");
         Scanner sc = new Scanner(System.in);
         Veterinaria veterinaria = new Veterinaria();
         veterinaria.cargarDatos();
@@ -755,7 +754,7 @@ public class Main {
                     break;
                         case 4:
                             veterinaria.guardarDatos();
-                            System.out.println("⚙️==SALIENDO DEL SISTEMA⚙️");
+                            System.out.println("⚙️==SALIENDO DEL SISTEMA==⚙️");
                             salir = true;
                             break;
                         default:
