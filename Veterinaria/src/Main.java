@@ -406,6 +406,7 @@ public class Main {
                                                 //System.out.println("Ingrese 0 para cancelar el ingreso."); Falta agregar la cancelacion del ingreso
                                                 System.out.println("Ingrese el nombre del Empleado: ");
                                                 String nombreE = sc.nextLine();
+                                                sc.nextLine();
                                                 if (nombreE.equals("0")) break registroRec;
 
                                                 System.out.println("Ingrese la edad del Empleado: ");
