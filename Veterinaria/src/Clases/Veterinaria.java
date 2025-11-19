@@ -66,6 +66,28 @@ import org.json.JSONArray;
             }
 
         }
+
+        public boolean eliminarEspecialidadAVeterinario(int dniVet, ESPECIE especie) throws ExcepcionNoExistente, ExcepcionColeccionVacia {
+
+            boolean seElimino = false;
+            Iterator<Empleado> it = Personal.getIterator();
+            while (it.hasNext()) {
+                Empleado emp = it.next();
+                if (emp instanceof Veterinario && emp.getDni() == dniVet) {
+
+                    Veterinario vet = (Veterinario) emp;
+                    vet.eliminarEspecialidad(especie);
+                    seElimino = true;
+                }
+            }
+
+                if(seElimino==false){
+                    throw new ExcepcionNoExistente("No se encontró un veterinario con ese DNI.");
+                }
+
+                return seElimino;
+        }
+
         public String listarEmpleados(){
             String lista = "";
             return lista += Personal.listar();

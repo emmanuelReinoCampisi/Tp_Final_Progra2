@@ -107,30 +107,8 @@ public class Veterinario extends Empleado  {
         }
     }
 
-    public String listarCitasPendientes(){
-        String mensaje = "";
-        Iterator<Cita> it = citas.iterator();
-        while (it.hasNext()) {
-            Cita c = it.next();
-            if(c.getEstadoCita() == ESTADOCITA.PENDIENTE){
-                mensaje += c.toString()+"\n";
-            }
-        }
 
-        return mensaje;
-    }
 
-    public String listarHistorialCitas(){
-        String mensaje = "";
-        Iterator<Cita> it = citas.iterator();
-        while (it.hasNext()) {
-            Cita c = it.next();
-                mensaje += c.toString()+"\n";
-
-        }
-
-        return mensaje;
-    }
 
     @Override
     public JSONObject toJSON() {

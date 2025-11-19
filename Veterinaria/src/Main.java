@@ -363,7 +363,9 @@ public class Main {
                             System.out.println("4. Desactivar Cuenta");
                             System.out.println("5. Activar Cuenta");
                             System.out.println("6. Buscar por DNI");
-                            System.out.println("7. Cerrar sesion");///
+                            System.out.println("7. Agregar especialidad Veterinario");
+                            System.out.println("8. Eliminar especialidad Veterinario");
+                            System.out.println("9. Cerrar sesion");///
                             System.out.println("Opcion...");
                             opcionAdmin = sc.nextInt();
                             sc.nextLine();
@@ -622,7 +624,75 @@ public class Main {
                                         }
                                     }while(opcionBuscarDni != 3);
                                     break;
+
                                 case 7:
+                                    try {
+
+
+                                    System.out.println(veterinaria.listarEmpleados());
+                                    System.out.println("Ingrese el DNI del vet a agregar especialidad");
+                                    int dniVet = sc.nextInt();
+                                    char seguirEspecialidades = 's';
+                                    while (seguirEspecialidades == 's') {
+                                        System.out.println("Seleccione las especialidades del Veterinario: ");
+                                        System.out.println("1. Caninos");
+                                        System.out.println("2. Felinos");
+                                        System.out.println("3. Aves");
+                                        System.out.println("4. Roedores");
+                                        System.out.println("5. Reptiles");
+                                        ESPECIE especialidad = null;
+                                        int opcionEspecialidad = sc.nextInt();
+                                        sc.nextLine();
+
+                                        switch (opcionEspecialidad) {
+                                            case 1 -> especialidad = ESPECIE.CANINO;
+                                            case 2 -> especialidad = ESPECIE.FELINO;
+                                            case 3 -> especialidad = ESPECIE.AVE;
+                                            case 4 -> especialidad = ESPECIE.ROEDOR;
+                                            case 5 -> especialidad = ESPECIE.REPTIL;
+                                            default -> System.out.println("OPCION INCORRECTA");
+                                        }
+
+                                        veterinaria.agregarEspecialidadVeterinario(dniVet, especialidad);
+                                        System.out.println("Ingrese s para cargar otra especialidad");
+                                        seguirEspecialidades = sc.nextLine().charAt(0);
+                                    }
+                                    } catch (ExcepcionNoExistente e) {
+                                        System.out.println(e.getMessage());
+                                    } catch (ExcepcionNoCoincide e) {
+                                        System.out.println(e.getMessage());
+                                    } catch (ExcepcionYaExistente e) {
+                                        System.out.println(e.getMessage());
+                                    }
+                                    break;
+
+                                case 8:
+                                    try {
+                                        System.out.println("Ingrese el DNI del veterinario: ");
+                                        int dniVet = sc.nextInt();
+                                        sc.nextLine();
+
+                                        System.out.println("=== Elija la especialidad a eliminar ===");
+                                        for (ESPECIE e : ESPECIE.values()) {
+                                            System.out.println("- " + e);
+                                        }
+
+                                        String especIngresada = sc.nextLine().toUpperCase();
+                                        ESPECIE especie = ESPECIE.valueOf(especIngresada);
+
+                                        if (veterinaria.eliminarEspecialidadAVeterinario(dniVet, especie)) {
+                                            System.out.println("Especialidad eliminada correctamente.");
+                                        }
+
+                                    } catch (ExcepcionNoExistente e) {
+                                        System.out.println(e.getMessage());
+                                    } catch (ExcepcionColeccionVacia e) {
+                                        System.out.println(e.getMessage());
+                                    } catch (IllegalArgumentException e) {
+                                        System.out.println("La especialidad ingresada no existe.");
+                                    }
+                                    break;
+                                case 9:
                                     System.out.println("Cerrando sesion de administrador....");
                                     break;
 
@@ -631,7 +701,7 @@ public class Main {
                                     break;
                             }
 
-                        } while (opcionAdmin != 7);
+                        } while (opcionAdmin != 9);
                     }
                     break;
 
