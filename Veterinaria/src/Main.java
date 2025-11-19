@@ -297,10 +297,10 @@ public class Main {
                             int opcionVet;
 
                             do {
+                                int dniVet = veterinaria.obtenerVeterinarioLogueado(mailVet,contraseniaVet).getDni();
                                 System.out.println("==== MENU VETERINARIO ===");
                                 System.out.println("1. Listar citas pendientes");
                                 System.out.println("2. Listar animales atendidos");
-                                System.out.println("3. Agregar diagnostico");
                                 System.out.println("3. Agregar diagnostico");
                                 System.out.println("4. Guardar y salir");
                                 System.out.println();
@@ -309,17 +309,36 @@ public class Main {
 
                                 switch (opcionVet) {
                                     case 1:
+                                        try{
+                                            System.out.println(veterinaria.listarCitasPendientesVeterinario(dniVet));
+                                        }catch (ExcepcionNoExistente e){
+                                            System.out.println(e.getMessage());
+                                        }
 
                                         break;
 
 
                                     case 2:
+                                        try{
+                                            System.out.println(veterinaria.listarCitasAtendidasVeterinario(dniVet));
+                                        }catch (ExcepcionNoExistente e){
+                                            System.out.println(e.getMessage());
+                                        }
 
                                         break;
 
-
                                     case 3:
-
+                                        try {
+                                            System.out.println(veterinaria.listarCitasPendientesVeterinario(dniVet));
+                                            System.out.println("Ingrese el ID de la cita para asignarle el diagnostico: ");
+                                            int idCitaC = sc.nextInt();
+                                            sc.nextLine();
+                                            System.out.println("Ingrese el diagnostico: ");
+                                            String diagConsola = sc.nextLine();
+                                            veterinaria.asignarDiagnostico(idCitaC,dniVet,diagConsola);
+                                        }catch (ExcepcionNoExistente e){
+                                            System.out.println(e.getMessage());
+                                        }
                                         break;
 
 

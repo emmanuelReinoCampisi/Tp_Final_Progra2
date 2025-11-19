@@ -162,6 +162,29 @@ import org.json.JSONArray;
             }
         }
 
+        public Veterinario obtenerVeterinarioLogueado(String email, String contra)
+                throws ExcepcionNoExistente, ExcepcionNoCoincide, ExcepcionFormatoNoValido {
+
+            Validaciones.validarFormatoContrasenia(contra);
+
+            Iterator<Empleado> it = Personal.getIterator();
+            while (it.hasNext()) {
+                Empleado emp = it.next();
+                if (emp instanceof Veterinario) {
+                    Veterinario vet = (Veterinario) emp;
+
+                    if (vet.getEmail().equalsIgnoreCase(email)) {
+
+                        Validaciones.validarMismaContrasenia(contra, vet.getContrasenia());
+
+                        return vet;
+                    }
+                }
+            }
+
+            throw new ExcepcionNoExistente("El email ingresado no corresponde a ningún Veterinario.");
+        }
+
 
         public void asignarDiagnostico(int idCita, int dniVet, String diagnostico)throws ExcepcionNoExistente{
 
@@ -184,6 +207,47 @@ import org.json.JSONArray;
 
         }
 
+
+        public String listarCitasPendientesVeterinario(int dniVet) throws ExcepcionNoExistente {
+            StringBuilder sb = new StringBuilder();
+            boolean encontrado = false;
+
+            Iterator<Cita> it = Citas.getIterator();
+            while (it.hasNext()) {
+                Cita c = it.next();
+
+                if (c.getVeterinario_dni() == dniVet && c.getEstadoCita() == ESTADOCITA.PENDIENTE) {
+                    sb.append(c.toString()).append("\n");
+                    encontrado = true;
+                }
+            }
+            if(!encontrado) {
+                throw new ExcepcionNoExistente("No se encontraron citas pendientes para este veterinario.");
+            }
+
+            return sb.toString();
+        }
+
+        public String listarCitasAtendidasVeterinario(int dniVet) throws ExcepcionNoExistente {
+            StringBuilder sb = new StringBuilder();
+            boolean encontrado = false;
+
+            Iterator<Cita> it = Citas.getIterator();
+            while(it.hasNext()) {
+                Cita c = it.next();
+
+                if(c.getVeterinario_dni() == dniVet && c.getEstadoCita() == ESTADOCITA.ATENDIDA) {
+                    sb.append(c.toString()).append("\n");
+                    encontrado = true;
+                }
+            }
+
+            if(!encontrado) {
+                throw new ExcepcionNoExistente("No se encontraron citas atendidas para este veterinario.");
+            }
+
+            return sb.toString();
+        }
         public String buscarDuenioPorDNI(int dni)throws ExcepcionNoExistente
         {   String lista = " ";
             if(!lista.equals(Duenios.buscarPorId(dni))){
